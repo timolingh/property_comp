@@ -28,9 +28,14 @@
   "min_price": 1000000,
   "max_price": 2000000,
   "beds_min": 1,
+  "beds_max": null,
   "baths_min": 1,
+  "baths_max": null,
   "sqft_min": 1000,
+  "sqft_max": null,
   "sold_in_last": "12m",
+  "lot_size_min": "7500 sqft",
+  "lot_size_max": "10 acres",
   "max_pages": 1,  
   "api_key": "env"
 }
