@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  circle-coords:
+    build: .
+    container_name: property_comp_circle_coords
+    volumes:
+      - ./circle_coords.R:/app/circle_coords.R
+    working_dir: /app
