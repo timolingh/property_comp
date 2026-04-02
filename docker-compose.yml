@@ -7,3 +7,18 @@ services:
     volumes:
       - ./circle_coords.R:/app/circle_coords.R
     working_dir: /app
+
+  housing-api:
+    build: .
+    container_name: property_comp_housing_api
+    volumes:
+      - ./housing_api.R:/app/housing_api.R
+      - ./circle_coords.R:/app/circle_coords.R
+      - ./workflow.R:/app/workflow.R
+      - ./config.json:/app/config.json
+      - ./.env:/app/.env
+      - ./results:/app/results
+    working_dir: /app
+    environment:
+      - RAPIDAPI_KEY=${RAPIDAPI_KEY}
+    entrypoint: ["/bin/bash", "-c", "Rscript workflow.R --config=config.json"]

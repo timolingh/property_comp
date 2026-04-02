@@ -1,7 +1,10 @@
 # Install required packages if not already installed
 required_packages <- c("tidygeocoder", "geosphere")
 new_packages <- required_packages[!(required_packages %in% installed.packages()[,"Package"])]
-if(length(new_packages)) install.packages(new_packages, quietly = TRUE)
+if (length(new_packages)) {
+  options(repos = c(CRAN = "https://cran.rstudio.com/"))
+  install.packages(new_packages, quietly = TRUE)
+}
 
 library(tidygeocoder)
 library(geosphere)
@@ -85,7 +88,7 @@ address_circle <- function(address, radius_mi, vertices = 20) {
 }
 
 # Example usage:
-if (!interactive()) {
+if (!interactive() && !isTRUE(getOption("sourced"))) {
   # Get command line arguments
   args <- commandArgs(trailingOnly = TRUE)
   

@@ -22,3 +22,9 @@ __pycache__/
 .Rhistory
 .RData
 .Rproj.user
+
+# Environment
+.env
+
+# Results
+results/
