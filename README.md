@@ -13,14 +13,13 @@ Generate circular polygon coordinates around a geocoded address, then search for
 - **Flexible Filtering**: Comprehensive property search filters (price, beds, baths, sqft, lot size, etc.)
 
 ---
-
 ## Quick Start
 
 1. **Setup:**
    ```bash
    cp .env.sample .env
    # Edit .env and set RAPIDAPI_KEY
-   docker-compose build
+   docker compose build
    ```
 
 2. **Configure search:**
@@ -28,7 +27,7 @@ Generate circular polygon coordinates around a geocoded address, then search for
 
 3. **Run:**
    ```bash
-   docker-compose run --rm housing-api
+   docker compose run --rm housing-api
    ```
 
 4. **Check results:**
@@ -115,7 +114,7 @@ address_circle(address, radius_mi, vertices = 20)
 
 Generate circle coordinates:
 ```bash
-docker-compose run --rm circle-coords "1600 Pennsylvania Avenue NW, Washington, DC" 1 20
+docker compose run --rm circle-coords "1600 Pennsylvania Avenue NW, Washington, DC" 1 20
 ```
 
 Parameters:
@@ -230,7 +229,7 @@ property_search_by_address(
 2. Edit `config.json` with your search parameters
 3. Run the workflow:
 ```bash
-docker-compose run --rm housing-api
+docker compose run --rm housing-api
 ```
 
 Results are saved to `results/` directory as timestamped CSV files.
@@ -241,19 +240,19 @@ Results are saved to `results/` directory as timestamped CSV files.
 
 ### Build
 ```bash
-docker-compose build
+docker compose build
 ```
 
 ### Available Services
 
 **1. Generate Circle Coordinates**
 ```bash
-docker-compose run --rm circle-coords "<address>" <radius_mi> [vertices]
+docker compose run --rm circle-coords "<address>" <radius_mi> [vertices]
 ```
 
 **2. Complete Workflow (Recommended)**
 ```bash
-docker-compose run --rm housing-api
+docker compose run --rm housing-api
 ```
 Uses `config.json` for all parameters and `.env` for API key.
 
@@ -276,7 +275,7 @@ Results are saved to:
 ├── .env                  # API key (copy from .env.sample)
 ├── .env.sample           # API key template
 ├── .gitignore            # Git ignore rules
-├── docker-compose.yml    # Container orchestration
+├── docker compose.yml    # Container orchestration
 ├── Dockerfile            # Container definition
 ├── property_search.sh    # Convenience script
 ├── run_circle.sh         # Circle generation script
@@ -327,7 +326,7 @@ Current `config.json` searches for recently sold homes within 10 miles of South 
 
 Run:
 ```bash
-docker-compose run --rm housing-api
+docker compose run --rm housing-api
 ```
 
 ### Example 2: Find Properties for Sale in Cupertino
@@ -353,7 +352,7 @@ Edit `config.json`:
 
 Run:
 ```bash
-docker-compose run --rm housing-api
+docker compose run --rm housing-api
 ```
 
 ---
@@ -378,7 +377,7 @@ docker-compose run --rm housing-api
 - Set restrictive filters to `null` to remove them
 
 ### Docker Issues
-- Run `docker-compose build --no-cache` to rebuild from scratch
+- Run `docker compose build --no-cache` to rebuild from scratch
 - Check Docker daemon is running
 - Verify disk space for image
 

@@ -28,3 +28,6 @@ __pycache__/
 
 # Results
 results/
+
+# Configuration
+config.json
