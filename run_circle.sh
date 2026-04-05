@@ -22,4 +22,4 @@ echo "Radius (mi): $RADIUS_MI"
 echo "Vertices: $VERTICES"
 echo ""
 
-docker-compose run --rm circle-coords "$ADDRESS" "$RADIUS_MI" "$VERTICES"
+docker compose run --rm circle-coords "$ADDRESS" "$RADIUS_MI" "$VERTICES"

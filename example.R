@@ -45,3 +45,41 @@ coords_df <- data.frame(
 )
 write.csv(coords_df, "circle_coordinates.csv", row.names = FALSE)
 cat("Saved to circle_coordinates.csv\n")
+
+# -------------------------------------------------------------------------
+# Example 5: Full end-to-end workflow (generate polygon + housing search)
+# -------------------------------------------------------------------------
+cat("Example 5: Full workflow (polygon -> housing API)\n")
+
+# Load the full workflow functions (won't execute CLI section when sourced interactively)
+source("workflow.R")
+
+# Ensure results directory exists
+if (!dir.exists("results")) dir.create("results", recursive = TRUE)
+
+# Use API key from environment if available
+api_key <- Sys.getenv("RAPIDAPI_KEY")
+if (api_key == "") {
+  cat("RAPIDAPI_KEY not set; skipping full workflow example.\n")
+} else {
+  result <- property_search_by_address(
+    address = "Times Square, New York, NY",
+    radius_mi = 1,
+    api_key = api_key,
+    status_type = "RecentlySold",
+    min_price = 100000,
+    max_price = 1000000,
+    max_pages = 1
+  )
+
+  if (!is.null(result$properties) && nrow(result$properties) > 0) {
+    timestamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
+    csv_file <- file.path("results", paste0("example_housing_results_", timestamp, ".csv"))
+    write.csv(result$properties, csv_file, row.names = FALSE)
+    polygon_file <- file.path("results", paste0("example_polygon_", timestamp, ".txt"))
+    writeLines(result$polygon, polygon_file)
+    cat("Full workflow completed. Results saved to:", csv_file, "and", polygon_file, "\n")
+  } else {
+    cat("Full workflow completed. No properties found.\n")
+  }
+}
