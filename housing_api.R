@@ -32,6 +32,8 @@ library(jsonlite)
 #' @param lot_size_max Character: maximum lot size (e.g., "10 acres")
 #' @param home_type Character: property home types (e.g., "Houses, Apartments")
 #' @param max_pages Numeric: maximum number of pages to fetch (NULL for all pages)
+#' @param request_delay_seconds Numeric: delay between successful page requests to avoid rate limits
+#' @param max_retries Numeric: maximum retries for a rate-limited page request
 #' @param verbose Logical: print progress messages
 #'
 #' @return Data frame with all property results from all pages
@@ -66,6 +68,8 @@ search_housing_by_polygon <- function(
     lot_size_max = NULL,
     home_type = NULL,
     max_pages = NULL,
+    request_delay_seconds = 15,
+    max_retries = 3,
     verbose = TRUE) {
 
   # Validate inputs
@@ -74,6 +78,12 @@ search_housing_by_polygon <- function(
   }
   if (!is.character(api_key) || length(api_key) != 1) {
     stop("api_key must be a single character string")
+  }
+  if (!is.numeric(request_delay_seconds) || length(request_delay_seconds) != 1 || request_delay_seconds < 0) {
+    stop("request_delay_seconds must be a single non-negative number")
+  }
+  if (!is.numeric(max_retries) || length(max_retries) != 1 || max_retries < 0) {
+    stop("max_retries must be a single non-negative number")
   }
 
   # API endpoint
@@ -129,22 +139,44 @@ search_housing_by_polygon <- function(
 
     # Make API request
     tryCatch({
-      response <- VERB(
-        "GET",
-        url,
-        query = query_params,
-        add_headers(
-          'x-rapidapi-key' = api_key,
-          'x-rapidapi-host' = api_host
-        ),
-        content_type("application/json"),
-        timeout(60)
-      )
+      retry_count <- 0
+      repeat {
+        response <- VERB(
+          "GET",
+          url,
+          query = query_params,
+          add_headers(
+            'x-rapidapi-key' = api_key,
+            'x-rapidapi-host' = api_host
+          ),
+          content_type("application/json"),
+          timeout(60)
+        )
 
-      # Check response status
-      if (http_error(response)) {
+        # Check response status
+        if (!http_error(response)) {
+          break
+        }
+
         status_code <- status_code(response)
         error_msg <- content(response, "text")
+
+        if (status_code == 429 && retry_count < max_retries) {
+          retry_after <- headers(response)[["retry-after"]]
+          wait_seconds <- suppressWarnings(as.numeric(retry_after))
+          if (is.na(wait_seconds) || wait_seconds <= 0) {
+            wait_seconds <- max(60, request_delay_seconds)
+          }
+
+          retry_count <- retry_count + 1
+          if (verbose) {
+            cat(" rate limited; waiting", wait_seconds, "seconds before retry",
+                retry_count, "of", max_retries, "\n")
+          }
+          Sys.sleep(wait_seconds)
+          next
+        }
+
         stop("API error (", status_code, "): ", error_msg)
       }
 
@@ -226,8 +258,10 @@ search_housing_by_polygon <- function(
       stop("Request error on page ", page, ": ", conditionMessage(e))
     })
 
-    # Small delay between requests to avoid rate limiting
-    Sys.sleep(0.5)
+    # Delay between successful requests to avoid per-minute rate limits
+    if (request_delay_seconds > 0) {
+      Sys.sleep(request_delay_seconds)
+    }
   }
 
   if (verbose) {

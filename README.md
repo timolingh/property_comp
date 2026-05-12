@@ -62,6 +62,8 @@ All search parameters are configured in `config.json`:
   "lot_size_min": "7500 sqft",
   "lot_size_max": "10 acres",
   "max_pages": 1,
+  "request_delay_seconds": 15,
+  "max_retries": 3,
   "api_key": "env"
 }
 ```
@@ -79,6 +81,8 @@ All search parameters are configured in `config.json`:
 - `sold_in_last`: Time frame for recently sold ("12m", "6m", "1y", etc.)
 - `lot_size_min`/`lot_size_max`: Lot size range ("7500 sqft", "10 acres", etc.)
 - `max_pages`: Maximum pages to fetch (set to `null` for all pages)
+- `request_delay_seconds`: Delay between successful page requests to reduce rate-limit risk
+- `max_retries`: Retries for a `429 Too Many Requests` response before failing
 - `api_key`: Set to "env" to read from RAPIDAPI_KEY environment variable
 
 ### .env File
@@ -170,6 +174,8 @@ search_housing_by_polygon(
 - `lot_size_min`, `lot_size_max` (character): Lot size filters ("7500 sqft", "10 acres", etc.) (NULL = no filter)
 - `home_type` (character): Property types (e.g., "Houses, Apartments, Condos", "Townhomes", etc.) (NULL = no filter)
 - `max_pages` (numeric): Maximum pages to fetch (NULL = fetch all pages)
+- `request_delay_seconds` (numeric): Delay between successful page requests, default `15`
+- `max_retries` (numeric): Retries for a rate-limited page request, default `3`
 - `verbose` (logical): Print progress messages
 
 **Returns:** Data frame with all property results (handles all pages automatically)
@@ -213,6 +219,8 @@ property_search_by_address(
   lot_size_min = NULL,
   lot_size_max = NULL,
   max_pages = NULL,
+  request_delay_seconds = 15,
+  max_retries = 3,
   ...
 )
 ```
@@ -368,6 +376,7 @@ docker compose run --rm housing-api
 - Verify API key is correct in `.env`
 - Check RapidAPI subscription is active
 - Review rate limits (free tier has restrictions)
+- Increase `request_delay_seconds` if you see `429` errors on later pages
 - Ensure polygon format is correct (lon/lat pairs)
 
 ### No Results

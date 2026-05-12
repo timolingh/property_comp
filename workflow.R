@@ -28,6 +28,8 @@ load_search_config <- function(config_path = "config.json") {
 #' @param min_price Numeric: minimum price
 #' @param max_price Numeric: maximum price
 #' @param max_pages Numeric: maximum number of pages to fetch (NULL for all pages)
+#' @param request_delay_seconds Numeric: delay between page requests to avoid rate limits
+#' @param max_retries Numeric: maximum retries for a rate-limited page request
 #' @param ... Additional parameters passed to search_housing_by_polygon()
 #'
 #' @return List with circle coordinates and property results dataframe
@@ -62,6 +64,8 @@ property_search_by_address <- function(
     lot_size_min = NULL,
     lot_size_max = NULL,
     max_pages = NULL,
+    request_delay_seconds = 15,
+    max_retries = 3,
     ...) {
 
   cat("=== Property Search Workflow ===\n\n")
@@ -99,6 +103,8 @@ property_search_by_address <- function(
     lot_size_min = lot_size_min,
     lot_size_max = lot_size_max,
     max_pages = max_pages,
+    request_delay_seconds = request_delay_seconds,
+    max_retries = max_retries,
     verbose = TRUE
   )
 
@@ -162,6 +168,8 @@ if (!interactive()) {
     lot_size_min <- if (!is.null(config$lot_size_min)) config$lot_size_min else NULL
     lot_size_max <- if (!is.null(config$lot_size_max)) config$lot_size_max else NULL
     max_pages <- if (!is.null(config$max_pages)) as.integer(config$max_pages) else NULL
+    request_delay_seconds <- if (!is.null(config$request_delay_seconds)) as.numeric(config$request_delay_seconds) else 15
+    max_retries <- if (!is.null(config$max_retries)) as.integer(config$max_retries) else 3
 
     api_key <- if (!is.null(config$api_key) && config$api_key == "env") {
       Sys.getenv("RAPIDAPI_KEY")
@@ -210,6 +218,8 @@ if (!interactive()) {
     sold_in_last <- NULL
     lot_size_min <- NULL
     lot_size_max <- NULL
+    request_delay_seconds <- 15
+    max_retries <- 3
   }
 
   result <- property_search_by_address(
@@ -230,7 +240,9 @@ if (!interactive()) {
     sold_in_last = sold_in_last,
     lot_size_min = lot_size_min,
     lot_size_max = lot_size_max,
-    max_pages = max_pages
+    max_pages = max_pages,
+    request_delay_seconds = request_delay_seconds,
+    max_retries = max_retries
   )
 
   if (!is.null(result$properties) && nrow(result$properties) > 0) {
